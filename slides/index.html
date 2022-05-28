@@ -1,0 +1,577 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <title>reveal.js</title>
+
+        <link rel="stylesheet" href="dist/reset.css">
+        <link rel="stylesheet" href="dist/reveal.css">
+        <link rel="stylesheet" href="dist/theme/black.css">
+
+        <!-- Theme used for syntax highlighted code -->
+        <link rel="stylesheet" href="plugin/highlight/zenburn.css">
+
+        <!-- Custom CSS -->
+        <style rel="text/css">
+            .side-by-side {
+                display: flex;
+            }
+
+            .side-by-side > * {
+                flex: initial;
+                margin: 0;
+                width: 50%;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="reveal">
+            <div class="slides">
+                <section>
+                  <h2>Bulletproof Python</h2>
+                  <h3>Property-Based Testing with Hypothesis</h3>
+                  <small>Michael Seifert</small>
+                </section>
+                <section>
+                  <h2>Roadmap</h2>
+                  <ul>
+                    <li>What is property-based testing?</li>
+                    <li>Session 1 - Baby steps with Hypothesis</li>
+                    <li>Generating all the things</li>
+                    <li>Session 2 - Describing your data</li>
+                    <li>Approaches for writing property-based tests</li>
+                    <li>Session 3 - Practice</li>
+                    <li>Hypothesis in practice</li>
+                  </ul>
+                </section>
+                <section>
+                  <section>
+                    <h2>What is property-based testing?</h2>
+                  </section>
+                  <section>
+                    <pre><code data-trim data-noescape class="language-python">
+                    from typing import List, TypeVar
+
+                    T = TypeVar("T", int, float)
+
+                    def max(l: List[T]) -> T:
+                        current_max = None
+                        for element in l:
+                            if current_max is None or element > current_max:
+                                current_max = element
+                        return current_max
+                    </code></pre>
+                    <aside class="notes">Assume we want to test the max() function.</aside>
+                  </section>
+                  <section>
+                    <pre><code data-trim data-noescape class="language-python">
+                    def test_max_returns_maximum_int():
+                        values = [-3, 5, 1]
+                        assert max(values) == 5
+
+                    def test_max_returns_maximum_float():
+                        values = [-3.0, 5.0, 1.0]
+                        assert max(values) == 5.0
+                    </code></pre>
+                    <aside class="notes">Assume we want to test the max() function.</aside>
+                  </section>
+                  <section>
+                    <pre><code data-trim data-noescape class="language-python">
+                    @pytest.mark.parametrize(
+                        "values, expected_max",
+                        (
+                            ([-3, 5, 1], 5),
+                            ([-3.0, 5.0, 1.0], 5.0),
+                        )
+                    )
+                    def test_max_returns_max(values, expected_max):
+                        assert max(values) == expected_max
+                    </code></pre>
+                    <aside class="notes">Parametrization makes the tests more compact.</aside>
+                  </section>
+                  <section>
+                    <pre><code data-trim data-noescape class="language-python">
+                    @pytest.mark.parametrize(
+                        "values",
+                        (
+                            [-3, 5, 1],
+                            [-3.0, 5.0, 1.0],
+                        )
+                    )
+                    def test_max_returns_max(values):
+                        assert max(values) == sorted(values)[-1]
+                    </code></pre>
+                    <aside class="notes">We just found a property: Max returns the largest value of a list. It would be trivial to add new parametrizations to the test.</aside>
+                  </section>
+                  <section>
+                    <pre><code data-trim data-noescape class="language-python">
+                    @given(
+                        st.one_of(
+                            st.lists(st.integers()),
+                            st.lists(st.floats()),
+                        )
+                    )
+                    def test_max_returns_max(values):
+                        assert max(values) == sorted(values)[-1]
+                    </code></pre>
+                    <pre class="fragment"><code data-trim data-noescape>
+                        def test_max_returns_max(values):
+                    >       assert max(values) == sorted(values)[-1]
+                    E       IndexError: list index out of range
+                    </code></pre>
+                    <aside class="notes">Fails, because it can include an empty list.</aside>
+                  </section>
+                  <section>
+                    <pre><code data-trim data-noescape class="language-python">
+                    from typing import List, TypeVar
+
+                    T = TypeVar("T", int, float)
+
+                    def max(l: List[T]) -> T:
+                        current_max = None
+                        for element in l:
+                            if current_max is None or element > current_max:
+                                current_max = element
+                        return current_max
+                    </code></pre>
+                    <aside class="notes">The implementation does not account for empty list.</aside>
+                  </section>
+                  <section>
+                    <pre><code data-trim data-noescape data-line-numbers="6-7" class="language-python">
+                    from typing import List, TypeVar
+
+                    T = TypeVar("T", int, float)
+
+                    def max(l: List[T]) -> T:
+                        if not l:
+                            raise ValueError()
+                        current_max = None
+                        for element in l:
+                            if current_max is None or element > current_max:
+                                current_max = element
+                        return current_max
+                    </code></pre>
+                    <pre class="fragment"><code data-trim data-noescape class="language-python">
+                    def test_max_raises_when_input_is_empty():
+                        with pytest.raises(ValueError):
+                            max([])
+                    </code></pre>
+                    <aside class="notes">The implementation does not account for empty list. Let's fix it and add a test.</aside>
+                  </section>
+                  <section>
+                    <pre><code data-trim data-noescape data-line-numbers="3-4" class="language-python">
+                    @given(
+                        st.one_of(
+                            st.lists(st.integers(), min_size=1),
+                            st.lists(st.floats(), min_size=1),
+                        )
+                    )
+                    def test_max_returns_max(values):
+                        assert max(values) == sorted(values)[-1]
+                    </code></pre>
+                    <pre class="fragment"><code data-trim data-noescape>
+                        def test_max_returns_max(values):
+                    >       assert max(values) == sorted(values)[-1]
+                    E       assert nan == nan
+                    E        +  where nan = max([nan])
+                    </code></pre>
+                    <aside class="notes">Fails, because NaN cannot be compared. Did we account for this case in the implementation?</aside>
+                  </section>
+                  <section>
+                    <pre><code data-trim data-noescape data-line-numbers="4" class="language-python">
+                    @given(
+                        st.one_of(
+                            st.lists(st.integers(), min_size=1),
+                            st.lists(st.floats(allow_nan=False), min_size=1),
+                        )
+                    )
+                    def test_max_returns_max(values):
+                        expected_max = sorted(values)[-1]
+                        assert max(values) == expected_max
+                    </code></pre>
+                  </section>
+                  <section>
+                    <h3>Take aways</h3>
+                    <ul>
+                        <li class="fragment">The people who write the code don't come up with good tests to break it.</li>
+                        <li class="fragment">Describe how your data should look like. Let Hypothesis worry about the rest.</li>
+                    </ul>
+                  </section>
+                </section>
+                <section>
+                    <section>
+                        <h2>Hands on</h2>
+                        <h3>Baby steps with Hypothesis</h3>
+                    </section>
+                    <section>
+                        Unix/MacOS (Bash)
+                        <pre><code data-trim data-noescape class="language-bash">
+                        $ git clone https://github.com/seifertm/hypothesis-workshop
+                        $ cd hypothesis-workshop/exercises
+                        $ python -m venv venv
+                        $ . venv/bin/activate
+                        $ pip install -r requirements.txt
+                        $ pytest
+                        </code></pre>
+
+                        Windows (PowerShell)
+                        <pre><code data-trim data-noescape class="language-powershell">
+                        > git clone https://github.com/seifertm/hypothesis-workshop
+                        > cd hypothesis-workshop\exercises
+                        > python -m venv venv
+                        > venv\Scripts\activate.ps1
+                        > pip install -r requirements.txt
+                        > pytest
+                        </code></pre>
+                    </section>
+                </section>
+                <section>
+                    <section>
+                        <h2>Generating all the things</h2>
+                    </section>
+                    <section>
+                        <h3>Specific examples</h3>
+                        <pre><code data-trim data-noescape class="language-python">
+                            @example(1)
+                            @example(0)
+                            @given(st.integers())
+                            def test_my_func(i):
+                                ...
+                        </code></pre>
+                    </section>
+                    <section>
+                        <h3>Manipulating strategies</h3>
+                        <pre><code data-trim data-noescape class="language-python">
+                        @given(
+                            st.integers().map(str)
+                        )
+                        def test_map(int_as_string):
+                            ...
+                        </code></pre>
+                        <pre class="fragment"><code data-trim data-noescape class="language-python">
+                        @given(
+                            st.integers().filter(lambda i: i % 7 != 0)
+                        )
+                        def test_filter(not_divisible_by_seven):
+                            ...
+                        </code></pre>
+                    </section>
+                    <section>
+                        <h3>Multi value strategies</h3>
+                        <pre><code data-trim data-noescape class="language-python">
+                        @given(st.sampled_from(["red", "green", "blue"]))
+                        def test_question(color):
+                            ...
+                        </code></pre>
+                        <aside class="notes"></aside>
+                    </section>
+                    <section>
+                        <h3>Lists</h3>
+                        <pre><code data-trim data-noescape class="language-python">
+                        @given(
+                            st.lists(
+                                st.integers(),
+                                min_size=1,
+                                max_size=10,
+                                # unique = True,
+                            )
+                        )
+                        def test_list_of_integers(ints):
+                            ...
+                        </code></pre>
+                    </section>
+                    <section>
+                        <h3>Tuples</h3>
+                        <pre><code data-trim data-noescape class="language-python">
+                        @given(
+                            st.tuples(st.integers(), st.integers())
+                        )
+                        def test_pair(pair):
+                            ...
+                        </code></pre>
+                    </section>
+                    <section>
+                        <h3>Dictionaries</h3>
+                        <pre><code data-trim data-noescape class="language-python">
+                        @given(
+                            st.fixed_dictionaries(
+                                {
+                                    "key1": st.binary(),
+                                    "key2": st.text(),
+                                }
+                            )
+                        )
+                        def test_dict(my_map):
+                            ...
+                        </code></pre>
+                    </section>
+                    <section>
+                        <h3>Combining strategies</h3>
+                        <pre><code data-trim data-noescape class="language-python">
+                        @given(
+                            st.one_of(
+                                (st.integers(), st.floats())
+                            )
+                        )
+                        def test_float_or_int(number):
+                            ...
+                        </code></pre>
+                        <pre class="fragment"><code data-trim data-noescape class="language-python">
+                        @given(st.integers() | st.floats())
+                        def test_float_or_int(number):
+                            ...
+                        </code></pre>
+                    </section>
+                    <section>
+                        <h3>Complex strategies</h3>
+                        <pre><code data-trim data-noescape class="language-python">
+                        @st.composite
+                        def list_with_index(draw):
+                            int_list = draw(st.lists(st.integers()))
+                            list_index = draw(
+                                st.integers(min_value=0, max_value=len(int_list))
+                            )
+                            return int_list, list_index
+                        </code></pre>
+                        <pre class="fragment"><code data-trim data-noescape class="language-python">
+                        my_strategy = st.lists(
+                            st.integers(min_value=0)
+                        ).flatmap(lambda l: st.integers(min_value=0, max_value=len(l)))
+                        </code></pre>
+                    </section>
+                    <section>
+                        <h3>Drawing interactively</h3>
+                        <pre><code data-trim data-noescape class="language-python">
+                        @given(data())
+                        def test_records_by_category(data):
+                            size_category = data.draw(category)
+                            records = data.draw(
+                                st.lists(
+                                    my_records(),
+                                    min_size=size_category.record_count
+                                )
+                            )
+                            ...
+                        </code></pre>
+                        <aside class="notes">
+                            This can be a test smell. Try to use the composite strategy, split up the test, or redesign the test, if possible.
+                        </aside>
+                    </section>
+                    <section>
+                        <h3>Constructing objects</h3>
+                        <pre><code data-trim data-noescape class="language-python">
+                        @dataclass
+                        class Point2d:
+                            x: float
+                            y: float
+                        </code></pre>
+                        <pre class="fragment"><code data-trim data-noescape class="language-python">
+                        @given(
+                            st.builds(Point2D)
+                        )
+                        def test_point(point):
+                            size_category = data.draw(category)
+                            records = data.draw(
+                                st.lists(
+                                    my_records(),
+                                    min_size=size_category.record_count
+                                )
+                            )
+                            ...
+                        </code></pre>
+                        <aside class="notes">st.builds tries to infer arguments automatically using st.from_type.</aside>
+                    </section>
+                    <section>
+                        <h3>Constructing objects</h3>
+                        <pre><code data-trim data-noescape data-line-numbers="2-6" class="language-python">
+                        @given(
+                            st.builds(
+                                Point2D,
+                                x=st.floats(allow_nan=False)
+                                y=st.floats(allow_nan=False)
+                            )
+                        )
+                        def test_point(point):
+                            ...
+                        </code></pre>
+                        <aside class="notes"></aside>
+                    </section>
+                    <section>
+                        <h3>Single value strategy</h3>
+                        <pre><code data-trim data-noescape class="language-python">
+                        @given(st.just(42))
+                        def test_question(answer_to_life):
+                            ...
+                        </code></pre>
+                        <pre class="fragment"><code data-trim data-noescape class="language-python">
+                        @given(
+                            st.builds(
+                                Point2D,
+                                x=st.just(42.0)
+                            )
+                        )
+                        </code></pre>
+                        <aside class="notes">st.just is handy when you want to limit st.composite or st.builds</aside>
+                    </section>
+                    <section>
+                        <h3>Take aways</h3>
+                        <p>Rather generate too much than too little</p>
+                        <p>Study the <a href="https://hypothesis.readthedocs.io/en/latest/data.html">Hypothesis docs</a></p>
+                        <aside class="notes">Generating data more broadly will make your code due to an invalid example (false negative), which is preferrable to a false positive (code passes where it shouldn't).</aside>
+                    </section>
+                </section>
+                <section>
+                    <h2>Hands on - Describing your data</h2>
+                </section>
+                <section>
+                    <section>
+                        <h2>Approaches for writing property-based tests</h2>
+                    </section>
+                    <section>
+                        <h3>Fuzzing</h3>
+                        <pre><code data-trim data-noescape class="language-python">
+                        @given(
+                            st.lists(
+                                st.integers() | st.floats() | st.text()
+                            )
+                        )
+                        def test_sort(a_list):
+                            custom_sort(a_list)
+                        </code></pre>
+                        <aside class="notes">Note there is not assertion. Just running your code with diverse input is already very effective at finding bugs.</aside>
+                    </section>
+                    <section>
+                        <h3>Differential testing</h3>
+                        <pre><code data-trim data-noescape class="language-python">
+                        @given(
+                            st.lists(
+                                st.text()
+                            )
+                        )
+                        def test_my_custom_sort(l):
+                            assert custom_sort(l) == sorted(l)
+                        </code></pre>
+                        <aside class="notes">Compare to a known good implementation</aside>
+                    </section>
+                    <section>
+                        <h3>Roundtrips</h3>
+                        <pre><code data-trim data-noescape class="language-python">
+                        @given(st.bytes())
+                        def test_base64(binary):
+                            encoded = b64encode(binary)
+                            decoded = b64decode(encoded)
+                            assert decoded == binary
+                        </code></pre>
+                        <aside class="notes">Even if you have to implement only one part of the roundtrip, consider implementing the other part in the test code.</aside>
+                    </section>
+                    <section>
+                        <h3>Metamorphic tests</h3>
+                        <pre><code data-trim data-noescape class="language-python">
+                        @given(st.integers(min_value=0))
+                        def test_negative_square_equals_square(n):
+                            assert square(n) == square(-n)
+                        </code></pre>
+                        <pre class="fragment"><code data-trim data-noescape class="language-python">
+                        @given(st.integers(min_value=0))
+                        def test_square_is_strictly_monotonic(n):
+                            assert square(n) < square(n + 1)
+                        </code></pre>
+                        <aside class="notes"></aside>
+                    </section>
+                    <section>
+                        <h3>Algebraic properties</h3>
+                        <pre><code data-trim data-noescape class="language-python">
+                        @given(st.integers())
+                        def test_sign_is_idempotent(n):
+                            assert sign(n) == sign(sign(n))
+                        </code></pre>
+                        <aside class="notes">Handy for Web APIs</aside>
+                    </section>
+                </section>
+                <section>
+                    <h2>Hands on - Practice</h2>
+                </section>
+                <section>
+                    <section>
+                        <h2>Hypothesis in practice</h2>
+                    </section>
+                    <section>
+                        <h3>Debugging</h3>
+                        <pre><code data-trim data-noescape class="language-python">
+                        @given(st.lists(st.integers()))
+                        def test_printing_failures(ints):
+                            note("Sum of list: {sum(ints)}")
+                            ...
+                        </code></pre>
+                        <aside class="notes"></aside>
+                    </section>
+                    <section>
+                        <h3>Reproducing failures</h3>
+                        <pre><code data-trim data-noescape class="language-python">
+                        @settings(print_blob=True)
+                        @given(st.integers())
+                        def test_that_fails(n):
+                            ...
+                        </code></pre>
+                        <pre class="fragment"><code data-trim data-noescape class="language-python">
+                        @reproduce_failure(b"AAAAABBBB1111===")
+                        @given(st.integers())
+                        def test_that_fails(n):
+                            ...
+                        </code></pre>
+                        <aside class="notes">Hypothesis example database usually takes care of it. It's helpful for CI runs, though.</aside>
+                    </section>
+                    <section>
+                        <h3>Profiles</h3>
+                        <pre><code data-trim data-noescape class="language-python">
+                        settings.register_profile("dev")
+                        settings.register_profile("ci", deadline=None)
+                        settings.load_profile(
+                            os.getenv("HYPOTHESIS_PROFILE", "dev")
+                        )
+                        </code></pre>
+                        <aside class="notes">Example assumes unreliable performance on CI server</aside>
+                    </section>
+                    <section>
+                        <h3>Statistics</h4>
+                        <pre><code data-trim data-noescape class="language-bash">
+                        $ pytest --hypothesis-show-statistics
+                        </code></pre>
+                        <pre><code data-trim data-noescape class="language-python">
+                        test_max_returns_max:
+
+                        - during reuse phase (0.00 seconds):
+                            - Typical runtimes: < 1ms, ~ 55% in data generation
+                            - 2 passing examples, 0 failing examples, 0 invalid examples
+
+                        - during generate phase (0.17 seconds):
+                            - Typical runtimes: 0-1 ms, ~ 74% in data generation
+                            - 98 passing examples, 0 failing examples, 10 invalid examples
+
+                        - Stopped because settings.max_examples=100
+                        </code></pre>
+                        <aside class="notes">Can be useful for debugging. Users can use "event" to log custom messages</aside>
+                    </section>
+                </section>
+            </div>
+        </div>
+
+        <script src="dist/reveal.js"></script>
+        <script src="plugin/notes/notes.js"></script>
+        <script src="plugin/markdown/markdown.js"></script>
+        <script src="plugin/highlight/highlight.js"></script>
+        <script>
+            // More info about initialization & config:
+            // - https://revealjs.com/initialization/
+            // - https://revealjs.com/config/
+            Reveal.initialize({
+                hash: true,
+
+                // Learn about plugins: https://revealjs.com/plugins/
+                plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
+            });
+        </script>
+    </body>
+</html>
