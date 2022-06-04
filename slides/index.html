@@ -374,13 +374,6 @@
                             st.builds(Point2D)
                         )
                         def test_point(point):
-                            size_category = data.draw(category)
-                            records = data.draw(
-                                st.lists(
-                                    my_records(),
-                                    min_size=size_category.record_count
-                                )
-                            )
                             ...
                         </code></pre>
                         <aside class="notes">st.builds tries to infer arguments automatically using st.from_type.</aside>
