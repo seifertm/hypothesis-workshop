@@ -331,14 +331,16 @@
                         def list_with_index(draw):
                             int_list = draw(st.lists(st.integers()))
                             list_index = draw(
-                                st.integers(min_value=0, max_value=len(int_list))
+                                st.integers(min_value=0, max_value=len(int_list) - 1)
                             )
                             return int_list, list_index
                         </code></pre>
                         <pre class="fragment"><code data-trim data-noescape class="language-python">
                         my_strategy = st.lists(
                             st.integers(min_value=0)
-                        ).flatmap(lambda l: st.integers(min_value=0, max_value=len(l)))
+                        ).flatmap(
+                            lambda l: st.integers(min_value=0, max_value=len(l) - 1)
+                        )
                         </code></pre>
                     </section>
                     <section>
@@ -554,6 +556,12 @@
                         </code></pre>
                         <aside class="notes">Can be useful for debugging. Users can use "event" to log custom messages</aside>
                     </section>
+                </section>
+                <section>
+                    <h3>Thank you!</h4>
+                    <p>Michael Seifert</p>
+                    <p>www.digitalernachschub.de</p>
+                    <p>LinkedIn, GitHub: seifertm</p>
                 </section>
             </div>
         </div>
