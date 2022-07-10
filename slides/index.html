@@ -337,9 +337,9 @@
                         </code></pre>
                         <pre class="fragment"><code data-trim data-noescape class="language-python">
                         my_strategy = st.lists(
-                            st.integers(min_value=0)
+                           st.integers(min_value=0)
                         ).flatmap(
-                            lambda l: st.integers(min_value=0, max_value=len(l) - 1)
+                           lambda l: l, st.integers(min_value=0, max_value=len(l) - 1)
                         )
                         </code></pre>
                     </section>
