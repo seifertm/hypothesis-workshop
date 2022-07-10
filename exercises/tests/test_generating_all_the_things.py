@@ -62,8 +62,9 @@ def test_container(container):
 # Exercise 5: If we want to write more tests for the Container type, we will have to copy and paste the strategy all over the place. The goal of this example is to make the strategy reusable for different tests. Write a composite strategy that returns Container objects. The composite strategy should have optional keyword arguments that allows users to override the strategies used to generate Container.id and Container.value. If no strategies for Container.id or Container.value are given, fall back to the defaults.
 
 @st.composite
-def containers(...) -> Container:
+def containers(draw, id=None, value=None) -> Container:
     # Your code goes here
+    ...
 
 
 @pytest.mark.skip  # Remove this
