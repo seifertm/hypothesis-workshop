@@ -384,7 +384,7 @@
                         @given(
                             st.builds(
                                 Point2D,
-                                x=st.floats(allow_nan=False)
+                                x=st.floats(allow_nan=False),
                                 y=st.floats(allow_nan=False)
                             )
                         )
@@ -453,7 +453,7 @@
                     <section>
                         <h3>Roundtrips</h3>
                         <pre><code data-trim data-noescape class="language-python">
-                        @given(st.bytes())
+                        @given(st.binary())
                         def test_base64(binary):
                             encoded = b64encode(binary)
                             decoded = b64decode(encoded)
