@@ -28,7 +28,7 @@ def test_sorted():
 
 
 
-# Exercise 3: Use Hypothesis to test the `enumerated` built-in function for lists.
+# Exercise 3: Use Hypothesis to test the `enumerate` built-in function for lists.
 
 # Your strategy goes here
 def test_enumerated():
