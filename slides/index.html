@@ -344,24 +344,6 @@
                         </code></pre>
                     </section>
                     <section>
-                        <h3>Drawing interactively</h3>
-                        <pre><code data-trim data-noescape class="language-python">
-                        @given(data())
-                        def test_records_by_category(data):
-                            size_category = data.draw(category)
-                            records = data.draw(
-                                st.lists(
-                                    my_records(),
-                                    min_size=size_category.record_count
-                                )
-                            )
-                            ...
-                        </code></pre>
-                        <aside class="notes">
-                            This can be a test smell. Try to use the composite strategy, split up the test, or redesign the test, if possible.
-                        </aside>
-                    </section>
-                    <section>
                         <h3>Constructing objects</h3>
                         <pre><code data-trim data-noescape class="language-python">
                         @dataclass
