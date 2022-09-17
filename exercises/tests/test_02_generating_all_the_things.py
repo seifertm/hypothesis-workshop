@@ -59,7 +59,7 @@ def test_container(container):
 
 
 
-# Exercise 5: If we want to write more tests for the Container type, we will have to copy and paste the strategy all over the place. The goal of this example is to make the strategy reusable for different tests. Write a composite strategy that returns Container objects. The composite strategy should have optional keyword arguments that allows users to override the strategies used to generate Container.id and Container.value. If no strategies for Container.id or Container.value are given, fall back to the defaults.
+# Bonus exercise 1: If we want to write more tests for the Container type, we will have to copy and paste the strategy all over the place. The goal of this example is to make the strategy reusable for different tests. Write a composite strategy that returns Container objects. The composite strategy should have optional keyword arguments that allows users to override the strategies used to generate Container.id and Container.value. If no strategies for Container.id or Container.value are given, fall back to the defaults.
 
 @st.composite
 def containers(draw, id=None, value=None) -> Container:
@@ -78,9 +78,9 @@ def test_container_with_positive(container):
 
 
 
-# Bonus exercise 1: Write a Point3D dataclass with three floating point attributes x, y, and z. Write a reusable Hypothesis strategy for Point3D.
+# Bonus exercise 2: Write a Point3D dataclass with three floating point attributes x, y, and z. Write a reusable Hypothesis strategy for Point3D.
 
-# Bonus exercise 2: Look at the documentation of the "deferred" strategy (see https://hypothesis.readthedocs.io/en/latest/data.html#hypothesis.strategies.deferred). Write a Hypothesis strategy that generates the following "Node" data structure.
+# Bonus exercise 3: Look at the documentation of the "deferred" strategy (see https://hypothesis.readthedocs.io/en/latest/data.html#hypothesis.strategies.deferred). Write a Hypothesis strategy that generates the following "Node" data structure.
 
 @dataclass
 class Node:
