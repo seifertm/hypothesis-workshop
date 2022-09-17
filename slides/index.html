@@ -335,13 +335,6 @@
                             )
                             return int_list, list_index
                         </code></pre>
-                        <pre class="fragment"><code data-trim data-noescape class="language-python">
-                        my_strategy = st.lists(
-                           st.integers(min_value=0), min_size=1
-                        ).flatmap(
-                           lambda l: l, st.integers(min_value=0, max_value=len(l) - 1)
-                        )
-                        </code></pre>
                     </section>
                     <section>
                         <h3>Constructing objects</h3>
