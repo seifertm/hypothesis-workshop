@@ -65,7 +65,7 @@ def test_square():
 
 
 
-# Exercise 4: The square function supports floating point numbers in addition to integers. Extend the Hypothesis tests accordingly-
+# Bonus exercise 1: The square function supports floating point numbers in addition to integers. Extend the Hypothesis tests accordingly-
 # Hint: Use the "one_of" strategy to combine strategies
 # See https://hypothesis.readthedocs.io/en/latest/data.html#hypothesis.strategies.one_of
 T = TypeVar("T", int, float)
@@ -79,6 +79,6 @@ def test_square2():
 
 
 
-# Bonus exercise: Extend square to support fractions in addition to integers and floats. Extend the Hypothesis tests accordingly.
+# Bonus exercise 2: Extend square to support fractions in addition to integers and floats. Extend the Hypothesis tests accordingly.
 # Hint: Use the "fractions" strategy to ask Hypothesis for random fractions.
 # see https://hypothesis.readthedocs.io/en/latest/data.html#hypothesis.strategies.fractions
