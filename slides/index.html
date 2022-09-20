@@ -207,7 +207,7 @@
                         Unix/MacOS (Bash)
                         <pre><code data-trim data-noescape class="language-bash">
                         $ git clone https://github.com/seifertm/hypothesis-workshop
-                        $ git switch 120min
+                        $ git switch 60min
                         $ cd hypothesis-workshop/exercises
                         $ python -m venv venv
                         $ . venv/bin/activate
@@ -218,7 +218,7 @@
                         Windows (PowerShell)
                         <pre><code data-trim data-noescape class="language-powershell">
                         > git clone https://github.com/seifertm/hypothesis-workshop
-                        > git switch 120min
+                        > git switch 60min
                         > cd hypothesis-workshop\exercises
                         > python -m venv venv
                         > venv\Scripts\activate.ps1
@@ -230,16 +230,6 @@
                 <section>
                     <section>
                         <h2>Generating all the things</h2>
-                    </section>
-                    <section>
-                        <h3>Specific examples</h3>
-                        <pre><code data-trim data-noescape class="language-python">
-                            @example(1)
-                            @example(0)
-                            @given(st.integers())
-                            def test_my_func(i):
-                                ...
-                        </code></pre>
                     </section>
                     <section>
                         <h3>Manipulating strategies</h3>
@@ -367,23 +357,6 @@
                             ...
                         </code></pre>
                         <aside class="notes"></aside>
-                    </section>
-                    <section>
-                        <h3>Single value strategy</h3>
-                        <pre><code data-trim data-noescape class="language-python">
-                        @given(st.just(42))
-                        def test_question(answer_to_life):
-                            ...
-                        </code></pre>
-                        <pre class="fragment"><code data-trim data-noescape class="language-python">
-                        @given(
-                            st.builds(
-                                Point2D,
-                                x=st.just(42.0)
-                            )
-                        )
-                        </code></pre>
-                        <aside class="notes">st.just is handy when you want to limit st.composite or st.builds</aside>
                     </section>
                     <section>
                         <h3>Take aways</h3>
