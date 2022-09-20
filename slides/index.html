@@ -43,7 +43,6 @@
                     <li>Session 2 - Describing your data</li>
                     <li>Approaches for writing property-based tests</li>
                     <li>Session 3 - Practice</li>
-                    <li>Hypothesis in practice</li>
                   </ul>
                 </section>
                 <section>
@@ -464,68 +463,6 @@
                 </section>
                 <section>
                     <h2>Hands on - Practice</h2>
-                </section>
-                <section>
-                    <section>
-                        <h2>Hypothesis in practice</h2>
-                    </section>
-                    <section>
-                        <h3>Debugging</h3>
-                        <pre><code data-trim data-noescape class="language-python">
-                        @given(st.lists(st.integers()))
-                        def test_printing_failures(ints):
-                            note("Sum of list: {sum(ints)}")
-                            ...
-                        </code></pre>
-                        <aside class="notes"></aside>
-                    </section>
-                    <section>
-                        <h3>Reproducing failures</h3>
-                        <pre><code data-trim data-noescape class="language-python">
-                        @settings(print_blob=True)
-                        @given(st.integers())
-                        def test_that_fails(n):
-                            ...
-                        </code></pre>
-                        <pre class="fragment"><code data-trim data-noescape class="language-python">
-                        @reproduce_failure(b"AAAAABBBB1111===")
-                        @given(st.integers())
-                        def test_that_fails(n):
-                            ...
-                        </code></pre>
-                        <aside class="notes">Hypothesis example database usually takes care of it. It's helpful for CI runs, though.</aside>
-                    </section>
-                    <section>
-                        <h3>Profiles</h3>
-                        <pre><code data-trim data-noescape class="language-python">
-                        settings.register_profile("dev")
-                        settings.register_profile("ci", deadline=None)
-                        settings.load_profile(
-                            os.getenv("HYPOTHESIS_PROFILE", "dev")
-                        )
-                        </code></pre>
-                        <aside class="notes">Example assumes unreliable performance on CI server</aside>
-                    </section>
-                    <section>
-                        <h3>Statistics</h4>
-                        <pre><code data-trim data-noescape class="language-bash">
-                        $ pytest --hypothesis-show-statistics
-                        </code></pre>
-                        <pre><code data-trim data-noescape class="language-python">
-                        test_max_returns_max:
-
-                        - during reuse phase (0.00 seconds):
-                            - Typical runtimes: < 1ms, ~ 55% in data generation
-                            - 2 passing examples, 0 failing examples, 0 invalid examples
-
-                        - during generate phase (0.17 seconds):
-                            - Typical runtimes: 0-1 ms, ~ 74% in data generation
-                            - 98 passing examples, 0 failing examples, 10 invalid examples
-
-                        - Stopped because settings.max_examples=100
-                        </code></pre>
-                        <aside class="notes">Can be useful for debugging. Users can use "event" to log custom messages</aside>
-                    </section>
                 </section>
                 <section>
                     <h3>Thank you!</h4>
