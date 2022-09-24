@@ -12,7 +12,7 @@ from typing import Optional
 
 import pytest
 from hypothesis import given, strategies as st
- 
+
 # Exercise 1: Write a strategy the generates even integers
 
 # Your code goes here
