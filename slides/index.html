@@ -359,23 +359,6 @@
                         <aside class="notes"></aside>
                     </section>
                     <section>
-                        <h3>Constructing Django models</h3>
-                        <pre><code data-trim data-noescape class="language-python">
-                        from hypothesis.extra.django import TestCase, from_model
-
-                        @given(
-                            from_model(
-                                Customer,
-                                email=st.emails(),
-                                name=st.text()
-                            )
-                        )
-                        def test_customer_model(customer):
-                            ...
-                        </code></pre>
-                        <aside class="notes"></aside>
-                    </section>
-                    <section>
                         <h3>Take aways</h3>
                         <p>Rather generate too much than too little</p>
                         <p>Study the <a href="https://hypothesis.readthedocs.io/en/latest/data.html">Hypothesis docs</a></p>
