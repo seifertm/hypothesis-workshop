@@ -52,11 +52,11 @@
                   </section>
                   <section>
                     <pre><code data-trim data-noescape class="language-python">
-                    from typing import List, TypeVar
+                    from typing import TypeVar
 
                     T = TypeVar("T", int, float)
 
-                    def max(l: List[T]) -> T:
+                    def max(l: list[T]) -> T:
                         current_max = None
                         for element in l:
                             if current_max is None or element > current_max:
@@ -125,11 +125,11 @@
                   </section>
                   <section>
                     <pre><code data-trim data-noescape class="language-python">
-                    from typing import List, TypeVar
+                    from typing import TypeVar
 
                     T = TypeVar("T", int, float)
 
-                    def max(l: List[T]) -> T:
+                    def max(l: list[T]) -> T:
                         current_max = None
                         for element in l:
                             if current_max is None or element > current_max:
@@ -140,11 +140,11 @@
                   </section>
                   <section>
                     <pre><code data-trim data-noescape data-line-numbers="6-7" class="language-python">
-                    from typing import List, TypeVar
+                    from typing import TypeVar
 
                     T = TypeVar("T", int, float)
 
-                    def max(l: List[T]) -> T:
+                    def max(l: list[T]) -> T:
                         if not l:
                             raise ValueError()
                         current_max = None
