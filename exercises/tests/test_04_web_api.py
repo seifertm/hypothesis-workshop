@@ -56,7 +56,7 @@ def test_api_example(api):
     add_item_response = api.post("/", json=new_item.dict())
     # calling "response.raise_for_status()" is helpful to get errors for HTTP response codes >= 400
     add_item_response.raise_for_status()
-    added_item = ShoppingItem.parse_obj(add_item_response.json())
+    added_item = ShoppingItem.model_validate(add_item_response.json())
 
     # Retrieve shopping items
     get_list_response = api.get("/")
