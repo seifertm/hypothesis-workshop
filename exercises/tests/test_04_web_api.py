@@ -53,7 +53,7 @@ def api() -> TestClient:
 def test_api_example(api):
     # Add a new shopping item
     new_item = ShoppingItem(name="milk", amount=2)
-    add_item_response = api.post("/", json=new_item.dict())
+    add_item_response = api.post("/", json=new_item.model_dump())
     # calling "response.raise_for_status()" is helpful to get errors for HTTP response codes >= 400
     add_item_response.raise_for_status()
     added_item = ShoppingItem.model_validate(add_item_response.json())
