@@ -8,7 +8,7 @@ import pytest
 from hypothesis import given, strategies as st
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from pydantic import BaseModel, parse_obj_as
+from pydantic import BaseModel, TypeAdapter
 
 class ShoppingItem(BaseModel):
     id: int = 0
@@ -61,19 +61,19 @@ def test_api_example(api):
     # Retrieve shopping items
     get_list_response = api.get("/")
     get_list_response.raise_for_status()
-    shopping_list = parse_obj_as(List[ShoppingItem], get_list_response.json())
+    shopping_list = TypeAdapter(List[ShoppingItem]).validate_python(get_list_response.json())
     assert len(shopping_list) == 1
     assert added_item in shopping_list
 
     # Delete shopping items
     delete_item_response = api.delete(f"/{added_item.id}")
     delete_item_response.raise_for_status()
-    deleted_item = ShoppingItem.parse_obj(delete_item_response.json())
+    deleted_item = TypeAdapter(ShoppingItem).validate_python(delete_item_response.json())
 
     # Retrieve shopping list again
     get_list_response = api.get("/")
     get_list_response.raise_for_status()
-    shopping_list = parse_obj_as(List[ShoppingItem], get_list_response.json())
+    shopping_list = TypeAdapter(List[ShoppingItem]).validate_python(get_list_response.json())
     get_list_response.raise_for_status()
     assert deleted_item not in shopping_list
 
